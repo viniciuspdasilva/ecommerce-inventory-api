@@ -31,15 +31,15 @@ def get_product(product_id: int, db: Session = Depends(get_db)):
 @router.put("/{product_id}", response_model=ProdutoResponse)
 def update_product(product_id: int, product: ProductCreate, db: Session = Depends(get_db)):
     repo = ProductRepository(db)
-    product = repo.update(product_id, product)
-    if not product:
+    produto_atualizado = repo.update(product_id, product)
+    if not produto_atualizado:
         raise HTTPException(status_code=404, detail="Produto não encontrado")
-    return repo.update(product_id, product)
+    return produto_atualizado
 
 @router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_product(product_id: int, db: Session = Depends(get_db)):
     repo = ProductRepository(db)
-    product = repo.delete(product_id)
+    product = repo.find_by_id(product_id)
     if not product:
         raise HTTPException(status_code=404, detail="Produto não encontrado")
     repo.delete(product_id)
