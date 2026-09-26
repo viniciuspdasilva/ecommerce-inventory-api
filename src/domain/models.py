@@ -17,6 +17,7 @@ class Product(Base):
     description = Column(String)
     category = Column(String)
     image = Column(String)
+    stock = Column(Integer)
 
     rating_rate = Column(Float)
     rating_count = Column(Integer)
@@ -41,6 +42,7 @@ class ProductCreate(BaseModel):
     description: str
     category: str
     image: str
+    stock: int
     rating: RatingSchema
 
 class ProductUpdate(BaseModel):

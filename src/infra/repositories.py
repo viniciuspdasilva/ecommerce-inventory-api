@@ -38,6 +38,7 @@ class ProductRepository:
                     description=product.description,
                     category=product.category,
                     image=product.image,
+                    stock=product.stock if product.stock else 0,
                     # Como a FakeStore não recebe rating na criação, definimos valores iniciais
                     rating_rate=product.rating.rate if product.rating else 0.0,
                     rating_count=product.rating.count if product.rating else 0
@@ -58,6 +59,9 @@ class ProductRepository:
             raise Exception("Não foi possível conectar ao serviço de catálogo global.")
 
     def list(self):
+        return self.db.query(Product).all()
+
+    def listAndAtualizarExterno(self):
         produtos_externos = self.buscar_dados_api_externa()
         if produtos_externos:
             for item in produtos_externos:
@@ -65,17 +69,8 @@ class ProductRepository:
                 produto_db = self.db.query(Product).filter(Product.id == item['id']).first()
 
                 if produto_db:
-                    # Se o produto já existe, apenas atualiza os valores (Update)
-                    mudou = False
-                    if produto_db.price != float(item['price']):
-                        produto_db.price = float(item['price'])
-                        mudou = True
-
-                    # Você pode adicionar mais verificações aqui (ex: category, title)
-
-                    if mudou:
-                        self.db.commit()
-                        self.db.refresh(produto_db)
+                    print(f"Produto {item['title']} já existe no banco de dados.")
+                    continue
                 else:
                     # Se não existe, insere o novo produto (Insert)
                     novo_produto = Product(
@@ -86,7 +81,8 @@ class ProductRepository:
                         category=item['category'],
                         image=item['image'],
                         rating_rate=float(item['rating']['rate']),
-                        rating_count=int(item['rating']['count'])
+                        rating_count=int(item['rating']['count']),
+                        stock=0,
                     )
                     self.db.add(novo_produto)
                     self.db.commit()

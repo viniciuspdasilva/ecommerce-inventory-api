@@ -10,6 +10,11 @@ from src.infra.repositories import ProductRepository
 # Cria o roteador do FastAPI
 router = APIRouter(prefix="/products", tags=["Estoque de Produtos"])
 
+@router.get("/sync", response_model=List[ProdutoResponse])
+def atualizar_lista_fake_store(db: Session = Depends(get_db)):
+    repo = ProductRepository(db)
+    return repo.listAndAtualizarExterno()
+
 @router.get("/", response_model=List[ProdutoResponse])
 def list_products(db: Session = Depends(get_db)):
     repo = ProductRepository(db)
